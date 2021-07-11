@@ -1,0 +1,62 @@
+version: '3.4'
+
+services:
+  customer.api:
+    image: ${DOCKER_REGISTRY-}customerapi
+    build:
+      context: .
+      dockerfile: Customer.Api/Customer.Api/Dockerfile
+    ports:
+       - 63221:443 
+    depends_on:
+       - customer.db
+
+  order.api:
+    image: ${DOCKER_REGISTRY-}orderapi
+    build:
+      context: .
+      dockerfile: Order.Api/Order.Api/Dockerfile
+    ports:
+       - 63222:443 
+    depends_on:
+       - order.db
+       
+  product.api:
+    image: ${DOCKER_REGISTRY-}productapi
+    build:
+      context: .
+      dockerfile: Product.Api/Product.Api/Dockerfile
+      
+  customer.db:
+    image: "mcr.microsoft.com/mssql/server:2017-latest"
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Customer1.
+      - MSSQL_PID=Express
+    ports:
+      - 2017:1433
+
+  order.db:
+    image: "mcr.microsoft.com/mssql/server:2019-latest"
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=OrderDataBase1.
+      - MSSQL_PID=Express
+    ports:
+      - 2019:1433
+
+  product.db:
+    image: mongo
+    ports:
+      - 27017
+    environment:
+      - MONGO_INITDB_DATABASE=productsdb
+
+  mongo-seed:
+    image: mongo-express-seed
+    build:
+      dockerfile: mongo/Dockerfile
+    links:
+      - product.db
+
+
