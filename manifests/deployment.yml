@@ -1,0 +1,25 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: pokemicroimg 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pokemicroimg
+  template:
+    metadata:
+      labels:
+        app: pokemicroimg 
+    spec:
+      containers:
+        - name: pokemicroimg 
+          image: acrpokezondev.azurecr.io/pokemicroimg
+          ports:
+          - containerPort: 80
+          env:
+          - name: ConnectionStrings_CustomerContext
+            valueFrom:  
+              secretKeyRef:
+                name: sqlserver-secrets
+                key: connection_string
