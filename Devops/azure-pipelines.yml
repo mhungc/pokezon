@@ -1,0 +1,43 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- bash: terraform init
+  displayName: Terraform init
+  workingDirectory: $(Build.SourcesDirectory)/Cloud/terraform/azure/setups/templates
+
+- bash: terraform validate
+  displayName: Terraform validate
+  workingDirectory: $(Build.SourcesDirectory)/Cloud/terraform/azure/setups/templates
+
+- bash: terraform plan -input=false -out ${BUILD_BUILDNUMBER}.tfplan
+  displayName: Terraform plan
+  workingDirectory: $(Build.SourcesDirectory)/Cloud/terraform/azure/setups/templates
+  env:
+    ARM_CLIENT_ID: $(AZURE_CLIENT_ID)
+    ARM_CLIENT_SECRET: $(AZURE_CLIENT_SECRET)
+    ARM_SUBSCRIPTION_ID: $(AZURE_SUBSCRIPTION_ID)
+    ARM_TENANT_ID: $(AZURE_TENANT_ID)
+
+- bash: terraform apply -auto-approve deployment.tfplan
+  workingDirectory: $(Build.SourcesDirectory)/Cloud/terraform/azure/setups/templates
+  displayName: Terraform Apply
+  env:
+    ARM_CLIENT_ID: $(AZURE_CLIENT_ID)
+    ARM_CLIENT_SECRET: $(AZURE_CLIENT_SECRET)
+    ARM_SUBSCRIPTION_ID: $(AZURE_SUBSCRIPTION_ID)
+    ARM_TENANT_ID: $(AZURE_TENANT_ID)
+     
+
+- script: |
+    echo Add other tasks to build, test, and deploy your project.
+    echo See https://aka.ms/yaml
+  displayName: 'Run a multi-line script'
